@@ -54,12 +54,10 @@ export const addTodo = (data) => (dispatch) => {
 }
 
 export const FILTER_CHANGED = 'FILTER_CHANGED';
-export const filterChanged = (rawData, filters) => (dispatch) => {
-    const data = []
-
+export const filterChanged = (filters) => (dispatch) => {
     dispatch({
         type: FILTER_CHANGED,
-        payload: data
+        payload: filters
     })
 
 }

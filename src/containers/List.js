@@ -31,7 +31,7 @@ class List extends Component {
             edit: null,
             data: [],
             firstTimeLoading: true,
-            changedList: false,
+            hasFilters: false,
             pagination: {
                 page: 0,
                 rowsPerPage: 5
@@ -50,12 +50,42 @@ class List extends Component {
         if (nextProps.todos.data !== this.props.todos.data) {
             this.setState({ firstTimeLoading: true })
         }
+
+        if (nextProps.todos.filters !== this.props.todos.filters) {
+            this.paginationChanged(this.state.pagination, this.props.todos.filters);
+        }
     }
 
-    paginationChanged = (options) => {
-        const { page, rowsPerPage } = options;
+    handleFilters = (filters, data) => {
+        let filteredData = []
+        
+        if (filters.description) {
+            filteredData = data.filter(o => o.description.includes(filters.description));
+        }
 
-        const data = this.props.todos.data.slice(page * rowsPerPage,(page + 1) * rowsPerPage)
+        if (filters.when) {
+            filteredData = data.filter(o => o.when === filters.when);
+        }
+
+        if (filters.rememberMeWhen) {
+            filteredData = data.filter(o => o.rememberMeWhen === filters.rememberMeWhen);
+        }
+
+        if (filters.prediction) {
+            filteredData = data.filter(o => o.prediction === filters.prediction);
+        }
+
+        if (filters.done || filters.done === false) {
+            filteredData = data.filter(o => o.done == filters.done);
+        }
+
+        return filteredData;
+    }
+
+    paginationChanged = (options, filters) => {
+        const { page, rowsPerPage } = options;
+        const todos = filters ? this.handleFilters(filters, this.props.todos.rawData) : this.props.todos.rawData;
+        const data = todos.slice(page * rowsPerPage,(page + 1) * rowsPerPage)
 
         this.setState({ data });
     }
@@ -89,13 +119,14 @@ class List extends Component {
     }   
 
     handleAddTodo = (e) => {
-        this.setState({ isModalOpen: true });
+        this.setState({ isModalOpen: true, edit: null });
     }
 
     handleFormSubmit = (data) => {
         if (this.state.edit) {
             data.id = this.state.edit.id;
             this.props.editTodo(data);
+            this.setState({ edit: null});
         } else {
             this.props.addTodo(data);
         }
@@ -106,12 +137,8 @@ class List extends Component {
         this.props.fetchTodos();
     }
 
-    firstPagination = (data) => {
-        this.paginationChanged(this.state.pagination);
-    }
-
     render() {
-        const { classes, todos } = this.props;
+        const { classes, todos, filters } = this.props;
         const { headers, data, pagination, isModalOpen, firstTimeLoading, edit, changedList } = this.state;
         const { page, rowsPerPage } = pagination; 
 

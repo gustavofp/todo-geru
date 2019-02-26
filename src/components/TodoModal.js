@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import Modal from '@material-ui/core/Modal'
-import Typography from '@material-ui/core/Typography'
+import Modal from '@material-ui/core/Modal';
 import { withStyles } from '@material-ui/core/styles';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
@@ -16,10 +15,12 @@ const styles = theme => ({
       boxShadow: theme.shadows[5],
       padding: theme.spacing.unit * 4,
       outline: 'none',
+      right: '35%',
+      top: '8%'
     },
     modal: {
         top: `50%`,
-        left: `50%`,
+        margin: 'auto',
         transform: `translate(-50%, -50%)`,
     },
     formControl: {
@@ -33,6 +34,7 @@ class TodoModal extends Component {
         
         this.state = { 
             description: null,
+            id: null,
             when: moment().format('YYYY-MM-DDTHH:mm'),
             rememberMeWhen: moment().format('YYYY-MM-DDTHH:mm'),
             prediction: moment().format('YYYY-MM-DDTHH:mm')
@@ -57,22 +59,22 @@ class TodoModal extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-
+        
         this.props.handleSubmit(this.state)
+        this.props.handleClose();
     }
 
     render() { 
-        const { isOpen, classes } = this.props;
-        const { when, rememberMeWhen, prediction } = this.state
-        console.log(when);
+        const { isOpen, classes, editData, handleClose } = this.props;
+        const { when, rememberMeWhen, prediction, description, id } = editData || this.state
 
         return ( 
-            <Modal open={isOpen}>
+            <Modal open={isOpen} onClose={handleClose} >
                 <div className={classes.paper}>
                     <form onSubmit={this.handleSubmit}>
                         <FormControl className={classes.formControl}>
                             <FormLabel component="legend">Description</FormLabel>
-                            <TextField onChange={this.handleDescriptionChange}></TextField>
+                            <TextField defaultValue={description} onChange={this.handleDescriptionChange}></TextField>
                         </FormControl>
                         <FormControl className={classes.formControl}>
                             <FormLabel component="legend">When?</FormLabel>
@@ -115,7 +117,7 @@ class TodoModal extends Component {
                         </FormControl>
                         <FormControl style={{ display: 'block' }} className={classes.formControl}>
                             <Button type="submit" color="primary" variant="contained" className={classes.button}>
-                                Submit
+                                { editData ? `Edit` : `Submit`}
                             </Button>
                         </FormControl>
                     </form> 

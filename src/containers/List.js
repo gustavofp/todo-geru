@@ -10,7 +10,7 @@ import AddIcon from '@material-ui/icons/Add';
 import TodoModal from '../components/TodoModal';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux'
-import { fetchTodos, addTodo } from '../actions/todos';
+import { fetchTodos, addTodo, removeTodo, editTodo } from '../actions/todos';
 
 const styles = (theme) => ({
     paperWrapper: {
@@ -28,6 +28,7 @@ class List extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            edit: null,
             data: [],
             firstTimeLoading: true,
             pagination: {
@@ -47,7 +48,7 @@ class List extends Component {
 
     paginationChanged = (options) => {
         const { page, rowsPerPage } = options;
-        console.log(options);
+
         const data = this.props.todos.data.slice(page * rowsPerPage,(page + 1) * rowsPerPage)
 
         this.setState({ data });
@@ -67,20 +68,36 @@ class List extends Component {
         this.paginationChanged(this.state.pagination);
     }
 
-    handleEdit = (e) => {
-        this.setState({ isModalOpen: true });
+    handleEdit = (item) => {
+        this.setState({ isModalOpen: true, edit: item });
+    }
+
+    handleDone = (item) => {
+        const data = { ...item, done: !item.done};
+
+        this.props.editTodo(data);
     }
 
     handleRemove = (id) => {
-        
-    }
+        this.props.removeTodo(id);
+    }   
 
     handleAddTodo = (e) => {
         this.setState({ isModalOpen: true });
     }
 
     handleFormSubmit = (data) => {
-        this.props.addTodo(data);
+        if (this.state.edit) {
+            data.id = this.state.edit.id;
+            this.props.editTodo(data);
+        } else {
+            this.props.addTodo(data);
+        }
+    }
+
+    handleModalClose = () => {
+        this.setState({ isModalOpen: false, edit: null });
+        this.props.fetchTodos();
     }
 
     firstPagination = (data) => {
@@ -89,7 +106,7 @@ class List extends Component {
 
     render() {
         const { classes, todos } = this.props;
-        const { headers, data, pagination, isModalOpen, firstTimeLoading} = this.state;
+        const { headers, data, pagination, isModalOpen, firstTimeLoading, edit } = this.state;
         const { page, rowsPerPage } = pagination; 
 
         if (todos.data.length === 0) {
@@ -97,7 +114,7 @@ class List extends Component {
         }
 
         if (todos.data.length > 0 && firstTimeLoading) {
-            this.setState({ firstTimeLoading: false })
+            this.setState({ firstTimeLoading: false, edit: null })
             this.paginationChanged(pagination);
         }
 
@@ -110,7 +127,9 @@ class List extends Component {
                             <TableData 
                                 data={data} 
                                 handleEdit={this.handleEdit} 
-                                handleRemove={this.handleRemove} />
+                                handleRemove={this.handleRemove}
+                                handleDone={this.handleDone}
+                                />
                         </Table>
                         <TableFooter 
                             handleChangePage={this.handleChangePage} 
@@ -124,7 +143,7 @@ class List extends Component {
                             <AddIcon />
                         </Fab>
                     </div>
-                <TodoModal isOpen={isModalOpen} handleSubmit={this.handleFormSubmit}  />
+                <TodoModal isOpen={isModalOpen} editData={edit} handleClose={this.handleModalClose} handleSubmit={this.handleFormSubmit}  />
                 </Paper>
             </div>
         );
@@ -132,7 +151,7 @@ class List extends Component {
 }
 
 const mapStateToProps = state => ({ todos: state.todos })
-const mapDispatchToProps = dispatch => bindActionCreators({ fetchTodos, addTodo }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchTodos, addTodo, removeTodo, editTodo }, dispatch);
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(List));

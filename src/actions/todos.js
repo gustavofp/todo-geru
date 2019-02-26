@@ -1,5 +1,6 @@
 import axios from 'axios';
 import config from '../config';
+import { error, success } from 'react-toastify-redux';
 
 export const TODOS_FETCH_STARTED = 'TODOS_FETCH_STARTED';
 export const TODOS_FETCH_SUCCESS = 'TODOS_FETCH_SUCCESS';
@@ -31,9 +32,12 @@ export const addTodo = (data) => (dispatch) => {
     axios.post(`${config.API}/api/todos`, data)
         .then((res) => {
             dispatch({ type: ADD_TODO_SUCCESS });
+            dispatch(success('Todo added!'))
+            fetchTodos();
         })
         .catch((err) => {
             dispatch({ type: ADD_TODO_ERROR });
+            dispatch(error('Error adding todo'))
         })  
 
 }
@@ -47,4 +51,38 @@ export const filterChanged = (rawData, filters) => (dispatch) => {
         payload: data
     })
 
+}
+
+export const REMOVE_TODO_STARTED = 'REMOVE_TODO_STARTED';
+export const REMOVE_TODO_SUCCESS = 'REMOVE_TODO_SUCCESS';
+export const REMOVE_TODO_ERROR = 'REMOVE_TODO_ERROR';
+export const removeTodo = (id) => (dispatch) => {
+    dispatch({ type: REMOVE_TODO_STARTED });
+
+    axios.delete(`${config.API}/api/todos/${id}`)
+    .then((res) => {
+        dispatch({ type: REMOVE_TODO_SUCCESS });
+        dispatch(success('Todo removed!'));
+    })
+    .catch((err) => {
+        dispatch({ type: REMOVE_TODO_ERROR });
+        dispatch(error('error removing todo!'))
+    })
+}
+
+export const EDIT_TODO_STARTED = 'EDIT_TODO_STARTED';
+export const EDIT_TODO_SUCCESS = 'EDIT_TODO_SUCCESS';
+export const EDIT_TODO_ERROR = 'EDIT_TODO_ERROR';
+export const editTodo = (data) => (dispatch) => {
+    dispatch({ type: EDIT_TODO_STARTED });
+
+    axios.put(`${config.API}/api/todos/${data.id}`, data)
+    .then((res) => {
+        dispatch({ type: EDIT_TODO_SUCCESS });
+        dispatch(success('Todo edited!'));
+    })
+    .catch((err) => {
+        dispatch({ type: EDIT_TODO_ERROR });
+        dispatch(error('error editing todo!'))
+    })
 }

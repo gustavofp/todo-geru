@@ -8,7 +8,7 @@ export const TODOS_FETCH_ERROR = 'TODOS_FETCH_ERROR';
 export const fetchTodos = () => (dispatch) => {
     dispatch({ type: TODOS_FETCH_STARTED });
 
-    axios.get(`${config.API}/api/todos`)
+    getTodosRequest()
         .then((res) => {
             dispatch({
                 type: TODOS_FETCH_SUCCESS,
@@ -23,6 +23,10 @@ export const fetchTodos = () => (dispatch) => {
         })
 }
 
+const getTodosRequest = () => {
+    return axios.get(`${config.API}/api/todos`)
+}
+
 export const ADD_TODO_STARTED = 'ADD_TODO_STARTED';
 export const ADD_TODO_SUCCESS = 'ADD_TODO_SUCCESS';
 export const ADD_TODO_ERROR = 'ADD_TODO_ERROR';
@@ -31,14 +35,21 @@ export const addTodo = (data) => (dispatch) => {
 
     axios.post(`${config.API}/api/todos`, data)
         .then((res) => {
-            dispatch({ type: ADD_TODO_SUCCESS });
+            dispatch({ type: ADD_TODO_SUCCESS, payload: res.data });
             dispatch(success('Todo added!'))
-            fetchTodos();
+
+            return getTodosRequest()
+        })
+        .then((res) => {
+            dispatch({
+                type: TODOS_FETCH_SUCCESS,
+                payload: res.data
+            })
         })
         .catch((err) => {
             dispatch({ type: ADD_TODO_ERROR });
             dispatch(error('Error adding todo'))
-        })  
+        })
 
 }
 
@@ -60,14 +71,22 @@ export const removeTodo = (id) => (dispatch) => {
     dispatch({ type: REMOVE_TODO_STARTED });
 
     axios.delete(`${config.API}/api/todos/${id}`)
-    .then((res) => {
-        dispatch({ type: REMOVE_TODO_SUCCESS });
-        dispatch(success('Todo removed!'));
-    })
-    .catch((err) => {
-        dispatch({ type: REMOVE_TODO_ERROR });
-        dispatch(error('error removing todo!'))
-    })
+        .then((res) => {
+            dispatch({ type: REMOVE_TODO_SUCCESS, payload: res.data });
+            dispatch(success('Todo removed!'));
+
+            return getTodosRequest()
+        })
+        .then((res) => {
+            dispatch({
+                type: TODOS_FETCH_SUCCESS,
+                payload: res.data
+            })
+        })
+        .catch((err) => {
+            dispatch({ type: REMOVE_TODO_ERROR });
+            dispatch(error('error removing todo!'))
+        })
 }
 
 export const EDIT_TODO_STARTED = 'EDIT_TODO_STARTED';
@@ -77,12 +96,20 @@ export const editTodo = (data) => (dispatch) => {
     dispatch({ type: EDIT_TODO_STARTED });
 
     axios.put(`${config.API}/api/todos/${data.id}`, data)
-    .then((res) => {
-        dispatch({ type: EDIT_TODO_SUCCESS });
-        dispatch(success('Todo edited!'));
-    })
-    .catch((err) => {
-        dispatch({ type: EDIT_TODO_ERROR });
-        dispatch(error('error editing todo!'))
-    })
+        .then((res) => {
+            dispatch({ type: EDIT_TODO_SUCCESS, payload: res.data });
+            dispatch(success('Todo edited!'));
+
+            return getTodosRequest()
+        })
+        .then((res) => {
+            dispatch({
+                type: TODOS_FETCH_SUCCESS,
+                payload: res.data
+            })
+        })
+        .catch((err) => {
+            dispatch({ type: EDIT_TODO_ERROR });
+            dispatch(error('error editing todo!'))
+        })
 }

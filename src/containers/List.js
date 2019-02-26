@@ -31,12 +31,13 @@ class List extends Component {
             edit: null,
             data: [],
             firstTimeLoading: true,
+            changedList: false,
             pagination: {
                 page: 0,
                 rowsPerPage: 5
             },
             isModalOpen: false,
-            headers: ['Id', 'Description', 'When?', 'Prediction', 'Remember me when?', 'Created At', 'Done', 'Options'],
+            headers: ['Description', 'When?', 'Prediction', 'Remember me when?', 'Created At', 'Done', 'Options'],
             items: []
         }
     }
@@ -45,6 +46,11 @@ class List extends Component {
         this.props.fetchTodos()
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.todos.data !== this.props.todos.data) {
+            this.setState({ firstTimeLoading: true })
+        }
+    }
 
     paginationChanged = (options) => {
         const { page, rowsPerPage } = options;
@@ -106,7 +112,7 @@ class List extends Component {
 
     render() {
         const { classes, todos } = this.props;
-        const { headers, data, pagination, isModalOpen, firstTimeLoading, edit } = this.state;
+        const { headers, data, pagination, isModalOpen, firstTimeLoading, edit, changedList } = this.state;
         const { page, rowsPerPage } = pagination; 
 
         if (todos.data.length === 0) {

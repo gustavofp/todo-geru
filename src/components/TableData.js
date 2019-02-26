@@ -17,7 +17,6 @@ const TableItem = props => {
     );
     return (
         <TableRow>
-            <TableCell>{ item.id }</TableCell>
             <TableCell>{ item.description }</TableCell>
             <TableCell>{ moment(item.when).format("DD/MM/YYYY HH:MM") }</TableCell>
             <TableCell>{ moment(item.prediction).format("DD/MM/YYYY HH:MM") }</TableCell>

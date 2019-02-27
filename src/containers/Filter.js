@@ -8,7 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
 import FormLabel from '@material-ui/core/FormLabel';
-import Checkbox from '@material-ui/core/Checkbox'
+import Checkbox from '@material-ui/core/Checkbox';
+import {DebounceInput} from 'react-debounce-input';
 
 const styles = (theme) => ({
     paperWrapper: {
@@ -32,14 +33,15 @@ class Filter extends Component {
         super(props);
         this.state = {
             description: null,
+            done: null,
             when: null,
             rememberMeWhen: null,
-            prediction: null,
-            done: false
+            prediction: null
         }
     }
 
     handleDescriptionChange = (e) => {
+        this.setState({ description: e.target.value });
 
         this.props.filterChanged({ ...this.state, description: e.target.value });
     }
@@ -63,8 +65,12 @@ class Filter extends Component {
     }
 
     handleDoneChange = (e) => {
+        if (!this.state.done) {
+            this.setState({ done: true })
+        }
+
         this.setState({ done: !this.state.done })
-        this.props.filterChanged({ ...this.state, done: this.state.done });
+        this.props.filterChanged({ ...this.state, done: !this.state.done });
     }
 
     render() {
@@ -78,7 +84,7 @@ class Filter extends Component {
                 </Typography>
                     <FormControl className={classes.formControl}>
                         <FormLabel component="legend">Description</FormLabel>
-                        <TextField onChange={this.handleDescriptionChange}></TextField>
+                        <DebounceInput element={TextField} debounceTimeout={300} onChange={(e) => this.handleDescriptionChange(e)}></DebounceInput>
                     </FormControl>
                     <FormControl className={classes.formControl}>
                         <FormLabel component="legend">When?</FormLabel>

@@ -52,7 +52,7 @@ class List extends Component {
         }
 
         if (nextProps.todos.filters !== this.props.todos.filters) {
-            this.paginationChanged(this.state.pagination, this.props.todos.filters);
+            this.paginationChanged(this.state.pagination, nextProps.todos.filters);
         }
     }
 
@@ -94,14 +94,14 @@ class List extends Component {
         if (!e) return;
         this.state.pagination.page = page;
 
-        this.paginationChanged(this.state.pagination);
+        this.paginationChanged(this.state.pagination, this.props.todos.filter);
     }
 
     handleChangeRowsPerPage = (e) => {
         if (!e) return;
         this.state.pagination.rowsPerPage = e.target.value;
 
-        this.paginationChanged(this.state.pagination);
+        this.paginationChanged(this.state.pagination, this.props.todos.filter);
     }
 
     handleEdit = (item) => {
@@ -148,7 +148,7 @@ class List extends Component {
 
         if (todos.data.length > 0 && firstTimeLoading) {
             this.setState({ firstTimeLoading: false, edit: null })
-            this.paginationChanged(pagination);
+            this.paginationChanged(pagination, filters);
         }
 
         return (

@@ -6,13 +6,7 @@ const INITIAL_STATE = {
     edited: null,
     added: null,
     removed: null,
-    filters: {
-        description: null,
-        prediction: null,
-        when: null,
-        rememberMeWhen: null,
-        done: null
-    }
+    filters: null
 }
 
 export default function (state = INITIAL_STATE, action) {
